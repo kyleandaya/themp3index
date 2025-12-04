@@ -53,8 +53,8 @@ function Home() {
     reader.readAsDataURL(file)
   }
 
-  const handleSubmit = () => {
-    if (!uploadedFile || !audioDataUrl) {
+  const handleSubmit = async () => {
+    if (!uploadedFile) {
       alert('Please upload a song first')
       return
     }
@@ -69,28 +69,24 @@ function Home() {
       return
     }
 
-    // Check localStorage size limit
+    // Check file size limit (50MB server limit)
     const fileSizeMB = uploadedFile.size / (1024 * 1024)
-    if (fileSizeMB > 5) {
-      if (!confirm(`Your file is ${fileSizeMB.toFixed(1)}MB. Large files may not save properly in browser storage. Continue anyway?`)) {
-        return
-      }
+    if (fileSizeMB > 50) {
+      alert('File is too large. Maximum size is 50MB.')
+      return
     }
 
-    // Create memory object
-    const memoryObj = {
-      id: Date.now(),
-      fileName: uploadedFile.name,
-      audioData: audioDataUrl,
-      memory: memory.trim(),
-      recipientName: recipientName.trim(),
-      labelColor: getRandomLabelColor(),
-      timestamp: new Date().toISOString(),
-      fileSize: uploadedFile.size
+    // Show loading state
+    const submitBtn = document.querySelector('.submit-btn')
+    const originalText = submitBtn?.textContent
+    if (submitBtn) {
+      submitBtn.disabled = true
+      submitBtn.textContent = 'Uploading...'
     }
 
     try {
-      saveMemory(memoryObj)
+      const labelColor = getRandomLabelColor()
+      await saveMemory(uploadedFile, recipientName.trim(), memory.trim(), labelColor)
       
       // Clear form
       fileInputRef.current.value = ''
@@ -110,6 +106,12 @@ function Home() {
     } catch (error) {
       alert(error.message || 'Error saving memory. Please try again.')
       console.error('Error:', error)
+    } finally {
+      // Restore button state
+      if (submitBtn) {
+        submitBtn.disabled = false
+        submitBtn.textContent = originalText || 'share your memory'
+      }
     }
   }
 

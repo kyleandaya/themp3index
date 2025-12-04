@@ -6,46 +6,84 @@ function Player() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [memories, setMemories] = useState([])
-  const [currentIndex, setCurrentIndex] = useState(parseInt(id) || 0)
+  const [currentMemoryId, setCurrentMemoryId] = useState(null)
+  const [loading, setLoading] = useState(true)
   const audioPlayerRef = useRef(null)
 
   useEffect(() => {
-    const loadedMemories = getMemories()
-    setMemories(loadedMemories)
+    const loadMemories = async () => {
+      try {
+        setLoading(true)
+        const loadedMemories = await getMemories()
+        setMemories(loadedMemories)
 
-    if (id !== undefined) {
-      const index = parseInt(id)
-      if (index >= 0 && index < loadedMemories.length) {
-        setCurrentIndex(index)
-      } else {
-        alert('Memory not found')
-        navigate('/gallery')
+        if (id !== undefined) {
+          const memoryId = parseInt(id)
+          const memory = loadedMemories.find(m => m.id === memoryId)
+          if (memory) {
+            setCurrentMemoryId(memoryId)
+          } else {
+            alert('Memory not found')
+            navigate('/gallery')
+          }
+        } else if (loadedMemories.length > 0) {
+          setCurrentMemoryId(loadedMemories[0].id)
+        }
+      } catch (error) {
+        console.error('Error loading memories:', error)
+        setMemories([])
+      } finally {
+        setLoading(false)
       }
     }
+    loadMemories()
   }, [id, navigate])
 
   useEffect(() => {
-    if (memories.length > 0 && currentIndex >= 0 && currentIndex < memories.length) {
-      const memory = memories[currentIndex]
-      if (audioPlayerRef.current) {
+    if (currentMemoryId && memories.length > 0) {
+      const memory = memories.find(m => m.id === currentMemoryId)
+      if (memory && audioPlayerRef.current) {
         audioPlayerRef.current.src = memory.audioData
         audioPlayerRef.current.load()
       }
     }
-  }, [currentIndex, memories])
+  }, [currentMemoryId, memories])
 
-  const currentMemory = memories[currentIndex]
+  const currentMemory = memories.find(m => m.id === currentMemoryId)
+  const currentIndex = memories.findIndex(m => m.id === currentMemoryId)
 
   const handleNext = () => {
-    if (currentIndex < memories.length - 1) {
-      setCurrentIndex(currentIndex + 1)
+    if (currentIndex >= 0 && currentIndex < memories.length - 1) {
+      setCurrentMemoryId(memories[currentIndex + 1].id)
+      navigate(`/player/${memories[currentIndex + 1].id}`, { replace: true })
     }
   }
 
   const handlePrev = () => {
     if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1)
+      setCurrentMemoryId(memories[currentIndex - 1].id)
+      navigate(`/player/${memories[currentIndex - 1].id}`, { replace: true })
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="player-container">
+        <header className="player-header">
+          <button className="back-btn" onClick={() => navigate('/gallery')} style={{background: 'none', border: 'none', cursor: 'pointer', padding: 0}}>
+            <span className="material-icons">arrow_back</span> back to library
+          </button>
+          <h1 className="handwritten-title">memory</h1>
+        </header>
+        <main className="player-content">
+          <div className="sticky-notes-container">
+            <div className="sticky-notes">
+              <div className="sticky-note empty-note">loading...</div>
+            </div>
+          </div>
+        </main>
+      </div>
+    )
   }
 
   if (memories.length === 0) {

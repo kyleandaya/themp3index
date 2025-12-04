@@ -5,14 +5,26 @@ import { getMemories } from '../utils/storage'
 function Gallery() {
   const navigate = useNavigate()
   const [memories, setMemories] = useState([])
+  const [loading, setLoading] = useState(true)
   const previewAudioRef = useRef(null)
   const fadeInIntervalRef = useRef(null)
   const fadeOutIntervalRef = useRef(null)
   const previewTimeoutRef = useRef(null)
 
   useEffect(() => {
-    const loadedMemories = getMemories()
-    setMemories(loadedMemories)
+    const loadMemories = async () => {
+      try {
+        setLoading(true)
+        const loadedMemories = await getMemories()
+        setMemories(loadedMemories)
+      } catch (error) {
+        console.error('Error loading memories:', error)
+        setMemories([])
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadMemories()
   }, [])
 
   const playPreview = (memory, cardElement) => {
@@ -154,7 +166,11 @@ function Gallery() {
 
       <main className="gallery-content">
         <div className="gallery-grid">
-          {memories.length === 0 ? (
+          {loading ? (
+            <div className="empty-state">
+              <p>loading memories...</p>
+            </div>
+          ) : memories.length === 0 ? (
             <div className="empty-state">
               <p>no memories shared yet</p>
               <p style={{marginTop: '1rem', fontSize: '1.2rem'}}>be the first to share yours</p>
@@ -171,7 +187,7 @@ function Gallery() {
                   className="gallery-card"
                   onClick={() => {
                     stopPreview(null)
-                    navigate(`/player/${index}`)
+                    navigate(`/player/${memory.id}`)
                   }}
                   onMouseEnter={(e) => playPreview(memory, e.currentTarget)}
                   onMouseLeave={(e) => stopPreview(e.currentTarget)}
