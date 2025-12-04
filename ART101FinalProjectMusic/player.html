@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory - The MP3 Index</title>
+    <!-- Fonts - will work offline with system fallbacks -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Shadows+Into+Light&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- System font fallbacks for offline use -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="player-container">
+        <header class="player-header">
+            <a href="gallery.html" class="back-btn"><span class="material-icons">arrow_back</span> back to memories</a>
+            <h1 id="playerTitle" class="handwritten-title">memory</h1>
+        </header>
+
+        <main class="player-content">
+            <div class="player-section">
+                <div class="audio-player-section">
+                    <p id="recipientName" class="recipient-name-display"></p>
+                    <audio id="audioPlayer" controls class="audio-player"></audio>
+                    <p id="fileName" class="file-name-display"></p>
+                </div>
+            </div>
+
+            <div class="messages-section">
+                <div class="sticky-notes-container">
+                    <div id="stickyNotes" class="sticky-notes"></div>
+                    <div class="carousel-controls">
+                        <button id="prevNote" class="carousel-btn"><span class="material-icons">arrow_back</span> previous</button>
+                        <button id="nextNote" class="carousel-btn">next <span class="material-icons">arrow_forward</span></button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Load player page
+        function loadPlayer() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const memoryId = parseInt(urlParams.get('id'));
+            const memories = getMemories();
+
+            if (memoryId === null || !memories[memoryId]) {
+                alert('Memory not found');
+                window.location.href = 'gallery.html';
+                return;
+            }
+
+            const memory = memories[memoryId];
+            document.getElementById('playerTitle').textContent = 'memory';
+            document.getElementById('fileName').textContent = memory.fileName;
+
+            // Initialize audio player
+            const audioPlayer = document.getElementById('audioPlayer');
+            audioPlayer.src = memory.audioData;
+
+            // Load all memories for carousel
+            const allMemories = memories;
+            const notesContainer = document.getElementById('stickyNotes');
+            let currentIndex = memoryId; // Start at the clicked memory
+
+            if (allMemories.length === 0) {
+                notesContainer.innerHTML = '<div class="sticky-note empty-note">no memories yet. be the first to share your thoughts.</div>';
+                document.getElementById('prevNote').disabled = true;
+                document.getElementById('nextNote').disabled = true;
+                return;
+            }
+
+            function showMessage(index) {
+                const memory = allMemories[index];
+                
+                // Update audio player to match current memory
+                audioPlayer.src = memory.audioData;
+                audioPlayer.load(); // Reload the audio source
+                
+                // Update recipient name display
+                const recipientName = memory.recipientName || 'someone';
+                document.getElementById('recipientName').textContent = `for ${recipientName}`;
+                
+                // Update file name display
+                document.getElementById('fileName').textContent = memory.fileName;
+                
+                // Update sticky note with memory text
+                notesContainer.innerHTML = '';
+                const note = document.createElement('div');
+                note.className = 'sticky-note';
+                note.style.animation = 'fadeIn 0.5s ease-in';
+                note.textContent = memory.memory;
+                notesContainer.appendChild(note);
+
+                // Update button states
+                document.getElementById('prevNote').disabled = index === 0;
+                document.getElementById('nextNote').disabled = index === allMemories.length - 1;
+            }
+
+            document.getElementById('nextNote').addEventListener('click', () => {
+                if (currentIndex < allMemories.length - 1) {
+                    currentIndex++;
+                    showMessage(currentIndex);
+                }
+            });
+
+            document.getElementById('prevNote').addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    showMessage(currentIndex);
+                }
+            });
+
+            // Show initial memory
+            showMessage(currentIndex);
+        }
+
+        loadPlayer();
+    </script>
+</body>
+</html>

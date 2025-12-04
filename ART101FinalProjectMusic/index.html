@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The MP3 Index</title>
+    <!-- Fonts - will work offline with system fallbacks -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Shadows+Into+Light&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- System font fallbacks for offline use -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="handwritten-title">the mp3 index</h1>
+            <p class="subtitle">share the song that holds your memory</p>
+        </header>
+
+        <main class="main-content">
+            <div class="form-section">
+                <div class="upload-section">
+                    <label for="audioFile" class="upload-label">
+                        <div class="upload-box">
+                            <span class="upload-icon material-icons">library_music</span>
+                            <span class="upload-text">upload your song</span>
+                            <span class="upload-hint">(mp3, mp4, wav, or any audio file)</span>
+                            <span class="upload-suggestion"><span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">lightbulb</span> tip: use mp3 format for longer songs or audios</span>
+                        </div>
+                        <input 
+                            type="file" 
+                            id="audioFile" 
+                            accept="audio/*,video/mp4"
+                            class="file-input"
+                        >
+                    </label>
+                    <div id="fileName" class="file-name"></div>
+                </div>
+
+                <div id="audioPreview" class="audio-preview" style="display: none;">
+                    <audio id="audioPlayer" controls class="audio-player"></audio>
+                </div>
+
+                <div id="memorySection" class="memory-section" style="display: none;">
+                    <div class="recipient-section">
+                        <h3 class="recipient-prompt">who does this song remind you of?</h3>
+                        <p class="recipient-hint">this can be a full name, just the first name, a nickname, or something you remember them by</p>
+                        <input 
+                            type="text" 
+                            id="recipientName" 
+                            placeholder="enter their name..."
+                            class="recipient-input"
+                        >
+                    </div>
+
+                    <h3 class="memory-prompt">write to them as if they could hear this song with you right now</h3>
+                    <p class="memory-hint">what would you say to them in this moment? you can be gentle, honest, messy, or unfinished</p>
+                    <textarea 
+                        id="memoryText" 
+                        placeholder="start your note to them here..."
+                        class="memory-input"
+                        rows="8"
+                    ></textarea>
+                </div>
+
+                <button id="submitBtn" class="submit-btn" disabled>share your memory</button>
+            </div>
+        </main>
+
+        <footer>
+            <a href="gallery.html" class="gallery-link">view memories <span class="material-icons">arrow_forward</span></a>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
