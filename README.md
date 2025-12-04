@@ -1,6 +1,6 @@
 # The MP3 Index 🎵
 
-A portable net art piece inspired by "The Unsent Project" where users upload their favorite songs and share the strongest memories attached to them—whether good, bad, sad, happy, or anything in between.
+A portable net art  where users upload their favorite songs and share the strongest memories attached to them—whether good, bad, sad, happy, or anything in between.
 
 ## The Concept
 
